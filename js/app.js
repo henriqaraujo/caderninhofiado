@@ -1016,6 +1016,7 @@ function formFiado(f, clienteId) {
       <div class="chips" role="radiogroup" aria-labelledby="l-prazo">${prazoChip('7', 'Em 7 dias')}${prazoChip('15', 'Em 15 dias')}${prazoChip('30', 'Em 30 dias')}${prazoChip('custom', 'Escolher o dia')}${prazoChip('none', 'Sem data')}</div>
       <div id="venc-box" ${prazo === 'custom' ? '' : 'hidden'} style="margin-top:8px"><label class="sr-only" for="ff-venc">Dia do vencimento</label><input type="date" id="ff-venc" name="venc" value="${venc}" data-vazio="Escolher o dia"></div>
       <small class="ajuda" id="venc-preview"></small><small class="erro" data-erro="venc"></small></div>
+    ${editando ? '' : `<label class="check" style="margin-bottom:12px"><input type="checkbox" name="avisar" ${db.config.avisarZap !== false ? 'checked' : ''}><span><b><i class="ph ph-whatsapp-logo"></i> Avisar o cliente no WhatsApp</b><small>Depois de salvar, você vê a mensagem e envia com um toque.</small></span></label>`}
     <details class="mais" style="margin-top:0" ${maisAberto ? 'open' : ''}><summary><i class="ph ph-caret-down"></i>Mais detalhes (anotação e data da compra)</summary>
       <div style="padding-top:8px">
         <div class="campo"><label for="ff-desc">Anotação (opcional)</label><input type="text" id="ff-desc" name="desc" placeholder="Exemplo: levou na quinta, vai pagar no dia 5" value="${esc(f ? f.desc : '')}" autocomplete="off"></div>
@@ -1187,6 +1188,20 @@ function enviarZap(c, msg) {
   if (!num) toast('Esse cliente está sem número. Escolha o contato no WhatsApp.');
   window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
 }
+const MSG_NOVO = 'Olá, {nome}! Passando para avisar que foi anotado um fiado de {valor} na {comercio}.{itens} O pagamento ficou combinado para {vencimento}. Qualquer dúvida é só chamar. Obrigado!';
+function msgNovoFiado(f) {
+  const c = cliente(f.clienteId);
+  const itens = (f.itens || []).length ? ' Itens: ' + f.itens.map(i => fmtQtd(i.qtd) + 'x ' + i.nome).join(', ') + '.' : '';
+  return montarMsg(db.config.msgNovo || MSG_NOVO, c ? c.nome.split(' ')[0] : 'tudo bem', brl(f.valor), f.venc ? fmtData(f.venc) : 'data a combinar').replaceAll('{itens}', itens);
+}
+function abrirAviso(fid) {
+  const f = db.fiados.find(x => x.id === fid); if (!f) return;
+  const c = cliente(f.clienteId);
+  abrir(sheet('Avisar o cliente', `<p class="card-sub">Confira a mensagem. Ao tocar em enviar, o WhatsApp abre já com o texto pronto.</p>
+    ${c && c.tel ? `<p><b>${esc(c.nome)}</b> · ${esc(c.tel)}</p>` : `<div class="campo"><label for="av-tel">WhatsApp de ${esc(c ? c.nome : 'cliente')}</label><input type="tel" id="av-tel" inputmode="tel" placeholder="(11) 91234-5678" autocomplete="off"><small class="ajuda">Esse cliente está sem número. Digite para enviar (fica guardado no cadastro).</small></div>`}
+    <div class="campo"><label for="av-msg">Mensagem</label><textarea id="av-msg" rows="6">${esc(msgNovoFiado(f))}</textarea></div>
+    <div class="sheet-acoes"><button class="btn btn-zap btn-grande" data-action="enviar-aviso" data-id="${f.id}"><i class="ph ph-whatsapp-logo"></i>Enviar no WhatsApp</button><button class="btn" data-action="fechar">Agora não</button></div>`));
+}
 function abrirZap(c, valor, venc, enc) {
   const v = venc ? fmtData(venc) : 'data a combinar';
   let msg = montarMsg(db.config.msg || MSG_PADRAO, c ? c.nome.split(' ')[0] : 'tudo bem', brl(valor), v);
@@ -1349,6 +1364,12 @@ const acoes = {
     const t = el.dataset.t, c = el.dataset.c, o = ui.sort[t];
     ui.sort[t] = o && o.c === c ? { c, d: -o.d } : { c, d: 1 };
     render();
+  },
+  'enviar-aviso': el => {
+    const f = db.fiados.find(x => x.id === el.dataset.id); if (!f) return;
+    const c = cliente(f.clienteId), t = $('#av-tel'), msg = ($('#av-msg') || {}).value || msgNovoFiado(f);
+    if (t) { if (numeroZap(t.value).length < 12) return toast('Digite o número com DDD. Exemplo: (11) 91234-5678'); if (c) { c.tel = t.value.trim(); salvar(); } }
+    enviarZap(c, msg); fechar();
   },
   cobrancas: () => abrirCobrancas(),
   sugestoes: () => abrirSugestoes(db.config.ramo),
@@ -1523,10 +1544,14 @@ const forms = {
     }
     if (cid === '__novo') { cid = uid(); db.clientes.push({ id: cid, nome: nomeNovo, tel: el.novoTel.value.trim(), obs: '' }); }
     const dados = { clienteId: cid, desc: el.desc.value.trim(), itens: formItens.filter(i => i.qtd > 0).map(i => ({ ...i })), valor, data, venc };
-    if (existente) Object.assign(existente, dados); else db.fiados.push({ id: uid(), ...dados, pagamentos: [] });
+    let novoId = '';
+    if (existente) Object.assign(existente, dados); else { novoId = uid(); db.fiados.push({ id: novoId, ...dados, pagamentos: [] }); }
     if (prazo !== 'custom' && prazo !== 'none') db.config.prazo = prazo;
+    const avisar = !existente && el.avisar && el.avisar.checked;
+    if (!existente && el.avisar) db.config.avisarZap = el.avisar.checked;
     salvar(); fechar(); render();
     toast(existente ? 'Fiado corrigido.' : 'Fiado anotado.');
+    if (avisar) setTimeout(() => abrirAviso(novoId), 80);
   },
   receber: f => {
     const fi = db.fiados.find(x => x.id === f.elements.id.value); if (!fi) return;
