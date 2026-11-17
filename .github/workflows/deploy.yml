@@ -15,7 +15,7 @@ jobs:
       - name: Preparar pasta dist
         run: |
           mkdir dist
-          cp -r index.html sw.js manifest.webmanifest css js fonts icons dist/
+          cp -r index.html sw.js manifest.webmanifest .htaccess css js fonts icons dist/
 
       - name: FTP Deploy Locaweb
         uses: locaweb/ftp-deploy@1.0.0
