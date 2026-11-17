@@ -52,3 +52,13 @@ body.pag-acesso{min-height:100dvh;background:var(--bg)}
   .adm-tab .td-acoes{display:block;padding-top:10px!important}
   .adm-acoes{justify-content:flex-start}
 }
+
+/* ícones de ação + dica personalizada */
+.adm-acoes .btn-pq{width:40px;height:40px;min-height:0;padding:0;display:inline-grid;place-items:center;font-size:19px;position:relative}
+.adm-acoes{flex-wrap:nowrap;gap:8px}
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translate(-50%,4px);width:max-content;max-width:220px;padding:8px 12px;border-radius:var(--r-sm);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;line-height:1.3;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:20;white-space:normal}
+[data-tip]::before{content:"";position:absolute;bottom:calc(100% + 4px);left:50%;transform:translate(-50%,4px);border:6px solid transparent;border-top-color:var(--ink);border-bottom:0;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:20}
+[data-tip]:hover::after,[data-tip]:hover::before,[data-tip]:focus-visible::after,[data-tip]:focus-visible::before{opacity:1;transform:translate(-50%,0)}
+.adm-acoes form:last-child [data-tip]::after{left:auto;right:0;transform:translate(0,4px)}
+.adm-acoes form:last-child [data-tip]:hover::after,.adm-acoes form:last-child [data-tip]:focus-visible::after{transform:translate(0,0)}
