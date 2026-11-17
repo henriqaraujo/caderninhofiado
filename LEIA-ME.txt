@@ -1,0 +1,10 @@
+CADERNINHO DO FIADO - como publicar na Locaweb
+
+1. Entre no Painel da Locaweb > Hospedagem de Sites > Gerenciador de Arquivos (ou use um programa de FTP).
+2. Abra a pasta "public_html" (ou a pasta do dominio/subdominio que vai usar).
+3. Envie TODO o conteudo desta pasta (nao o .zip), mantendo as pastas: css, js, fonts, icons e os arquivos index.html, sw.js e manifest.webmanifest.
+4. Acesse o endereco do site. Se o HTTPS estiver ativo (certificado SSL no painel), o sistema pode ser instalado no celular como aplicativo e funciona sem internet depois da primeira abertura.
+
+Atualizando uma versao nova: envie os arquivos por cima (inclusive js/controles.js, que e novo) e, no arquivo sw.js, aumente o numero em VERSAO (agora esta 'v4'; na proxima troque para 'v5'). O sistema sempre busca a versao mais nova quando ha internet.
+
+Os dados de cada comerciante ficam no proprio navegador/aparelho dele. Nada e gravado na Locaweb. Por isso a cobranca de "Copia de seguranca" em Ajustes e importante.
