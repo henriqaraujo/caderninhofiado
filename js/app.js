@@ -871,6 +871,7 @@ window.addEventListener('afterprint', () => document.body.classList.remove('impr
 
 /* ---------- tela: Mais (menu do celular) ---------- */
 function vMais() {
+  const lnk = (href, ic, t, d) => `<a class="menu-item" href="${href}"><span class="menu-ic"><i class="ph ${ic}"></i></span><span class="menu-tx"><strong>${t}</strong><small>${d}</small></span><i class="ph ph-caret-right"></i></a>`;
   const it = (view, ic, t, d) => `<button class="menu-item" data-action="ir" data-view="${view}"><span class="menu-ic"><i class="ph ${ic}"></i></span><span class="menu-tx"><strong>${t}</strong><small>${d}</small></span><i class="ph ph-caret-right"></i></button>`;
   return `<div class="pagina-h"><div><h1>Mais opções</h1></div></div>
   <div class="menu-lista">
@@ -879,6 +880,10 @@ function vMais() {
     ${it('produtos', 'ph-package', 'Produtos e serviços', 'Cadastre o que você vende')}
     ${it('ajustes', 'ph-gear-six', 'Ajustes e cópia de segurança', 'Nome do comércio, mensagem de cobrança, tema')}
     <button class="menu-item" data-action="ajuda"><span class="menu-ic"><i class="ph ph-question"></i></span><span class="menu-tx"><strong>Como usar</strong><small>Passo a passo rápido</small></span><i class="ph ph-caret-right"></i></button>
+    ${window.CF_USER ? `<p class="nav-grupo" style="margin-top:14px">Minha conta (${esc(window.CF_USER.nome)})</p>
+    ${window.CF_USER.admin ? lnk('admin.php', 'ph-shield-check', 'Administração', 'Criar usuários e trocar senhas') : ''}
+    ${lnk('senha.php', 'ph-key', 'Minha senha', 'Alterar a senha de acesso')}
+    ${lnk('sair.php', 'ph-sign-out', 'Sair', 'Fechar o caderninho neste aparelho')}` : ''}
   </div>`;
 }
 

@@ -2,7 +2,7 @@
 # Sem isto, regras de redirecionamento do site principal podem valer aqui também.
 RewriteEngine On
 
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 
 # Arquivos do sistema sempre atualizados no navegador
 <FilesMatch "\.(html|js|css|webmanifest)$">

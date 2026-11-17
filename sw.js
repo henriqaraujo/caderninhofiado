@@ -1,9 +1,9 @@
 /* Guarda os arquivos no aparelho para o sistema abrir mesmo sem internet.
    Com internet, sempre busca a versão mais nova primeiro. Ao publicar uma versão nova, troque o número em VERSAO. */
-const VERSAO = 'v6';
+const VERSAO = 'v7';
 const NOME = 'caderninho-fiado-' + VERSAO;
 const ARQUIVOS = [
-  './', 'index.html', 'css/app.css', 'css/ph.css', 'js/app.js', 'js/controles.js', 'manifest.webmanifest',
+  'css/app.css', 'css/ph.css', 'js/app.js', 'js/controles.js', 'manifest.webmanifest',
   'fonts/Phosphor.woff2', 'fonts/figtree-latin-wght-normal.woff2', 'fonts/figtree-latin-ext-wght-normal.woff2',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'
 ];
@@ -22,7 +22,7 @@ self.addEventListener('fetch', e => {
     e.respondWith(fetch(e.request, { cache: 'no-cache' }).then(r => {
       if (r.ok) { const c = r.clone(); caches.open(NOME).then(x => x.put(e.request, c)); }
       return r;
-    }).catch(() => caches.match(e.request).then(c => c || caches.match('index.html'))));
+    }).catch(() => caches.match(e.request).then(c => c || caches.match('./'))));
     return;
   }
   /* fontes e ícones: cópia guardada primeiro */

@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<?php
+define('CF', 1); require __DIR__ . '/auth.php';
+$eu = cf_exigir_login();
+header('Cache-Control: no-store');
+?><!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="utf-8">
@@ -7,6 +11,7 @@
 <meta name="description" content="Controle de fiado para comércio local: quem deve, quanto e quando vai pagar.">
 <meta name="theme-color" content="#f5f6f8">
 <link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex">
 <!-- Google Tag Manager -->
 <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KXJZB3JT"></script>
 <script>
@@ -50,6 +55,14 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
     </nav>
     <button class="btn btn-primary btn-grande" data-action="novo-fiado"><i class="ph ph-plus"></i>Anotar fiado</button>
     <button class="btn btn-ghost side-ajuda" data-action="ajuda"><i class="ph ph-question"></i>Como usar</button>
+    <div class="conta" aria-label="Minha conta">
+      <p class="conta-nome"><i class="ph ph-user-circle"></i><span><?= cf_h($eu['nome']) ?></span></p>
+      <div class="conta-links">
+        <?php if (!empty($eu['admin'])): ?><a href="admin.php"><i class="ph ph-shield-check"></i>Administração</a><?php endif; ?>
+        <a href="senha.php"><i class="ph ph-key"></i>Minha senha</a>
+        <a href="sair.php"><i class="ph ph-sign-out"></i>Sair</a>
+      </div>
+    </div>
   </aside>
 
   <header class="top">
@@ -79,6 +92,7 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
 <input type="file" id="arquivo" accept=".json,application/json" hidden>
 
 <noscript><p style="padding:24px;font-family:sans-serif">Para usar o Caderninho do Fiado é preciso ativar o JavaScript no navegador.</p></noscript>
+<script>window.CF_USER = <?= json_encode(array("nome" => $eu["nome"], "usuario" => $eu["usuario"], "admin" => !empty($eu["admin"]))) ?>;</script>
 <script src="js/controles.js"></script>
 <script src="js/app.js"></script>
 </body>

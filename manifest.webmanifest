@@ -2,7 +2,7 @@
   "name": "Caderninho do Fiado",
   "short_name": "Fiado",
   "description": "Controle de fiado para comércio local",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f5f6f8",

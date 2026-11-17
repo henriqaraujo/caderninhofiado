@@ -764,3 +764,13 @@ dialog.confirma{max-width:420px;border-radius:20px;margin:auto;width:calc(100% -
 .tb tbody tr:hover{background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
 .tb th[aria-sort="ascending"] .th-bt,.tb th[aria-sort="descending"] .th-bt{background:color-mix(in srgb,var(--accent) 22%,var(--accent-soft))}
 .tb .th-bt:hover{background:color-mix(in srgb,var(--accent) 22%,var(--accent-soft))}
+
+/* Conta do usuário (menu lateral) */
+.conta{margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.conta-nome{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;margin-bottom:6px}
+.conta-nome i{font-size:20px;color:var(--accent)}
+.conta-nome span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conta-links{display:flex;flex-direction:column;gap:2px}
+.conta-links a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:600}
+.conta-links a:hover{background:var(--surface-2);color:var(--ink)}
+a.menu-item{text-decoration:none;color:inherit}

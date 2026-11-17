@@ -8,3 +8,11 @@ CADERNINHO DO FIADO - como publicar na Locaweb
 Atualizando uma versao nova: envie os arquivos por cima (inclusive js/controles.js, que e novo) e, no arquivo sw.js, aumente o numero em VERSAO (agora esta 'v4'; na proxima troque para 'v5'). O sistema sempre busca a versao mais nova quando ha internet.
 
 Os dados de cada comerciante ficam no proprio navegador/aparelho dele. Nada e gravado na Locaweb. Por isso a cobranca de "Copia de seguranca" em Ajustes e importante.
+
+
+ACESSO (LOGIN) E ADMINISTRAÇÃO
+- O sistema agora pede usuário e senha (PHP). Abrir o index.html direto do computador não funciona mais.
+- No primeiro acesso, abra o endereço do site: aparece "Primeiro acesso" para criar o administrador. Faça isso logo após publicar.
+- Administração (menu "Mais" ou lado esquerdo): criar usuários, trocar senha, desativar, tornar admin, excluir.
+- Os usuários ficam na pasta _dados_caderninho (criada automaticamente ao lado da pasta do sistema, em public_html). Ela precisa de permissão de escrita.
+- O login só controla quem entra. Os dados dos fiados continuam salvos no navegador de cada aparelho.
