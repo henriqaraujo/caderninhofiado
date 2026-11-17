@@ -27,3 +27,24 @@
     if (m && !window.confirm(m)) e.preventDefault();
   });
 })();
+
+/* botão de tema (claro/escuro) nas telas de acesso */
+(function () {
+  try {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tema-fixo';
+    function pinta() {
+      var e = document.documentElement.dataset.theme === 'dark';
+      b.innerHTML = '<i class="ph ' + (e ? 'ph-sun' : 'ph-moon') + '"></i>';
+      b.setAttribute('aria-label', e ? 'Mudar para o modo claro' : 'Mudar para o modo escuro');
+      b.title = e ? 'Modo claro' : 'Modo escuro';
+    }
+    b.addEventListener('click', function () {
+      var novo = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = novo;
+      try { var d = JSON.parse(localStorage.getItem('caderninho-fiado-v1') || '{}'); d.config = d.config || {}; d.config.tema = novo; localStorage.setItem('caderninho-fiado-v1', JSON.stringify(d)); } catch (e) {}
+      pinta();
+    });
+    pinta(); document.body.appendChild(b);
+  } catch (e) {}
+})();

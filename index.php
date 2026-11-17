@@ -55,6 +55,7 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
     </nav>
     <button class="btn btn-primary btn-grande" data-action="novo-fiado"><i class="ph ph-plus"></i>Anotar fiado</button>
     <button class="btn btn-ghost side-ajuda" data-action="ajuda"><i class="ph ph-question"></i>Como usar</button>
+    <button class="btn btn-ghost side-tema" data-action="tema-alternar" data-tema-btn><i class="ph ph-moon"></i><span>Modo escuro</span></button>
     <div class="conta" aria-label="Minha conta">
       <p class="conta-nome"><i class="ph ph-user-circle"></i><span><?= cf_h($eu['nome']) ?></span></p>
       <div class="conta-links">
@@ -70,7 +71,10 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
       <span class="brand-mark"><i class="ph ph-notebook"></i></span>
       <span class="brand-txt"><strong id="top-titulo">Caderninho do Fiado</strong></span>
     </div>
-    <button class="icon-btn" data-action="ajuda" aria-label="Como usar"><i class="ph ph-question"></i></button>
+    <div class="top-acoes">
+      <button class="icon-btn" data-action="tema-alternar" data-tema-btn aria-label="Mudar para o modo escuro" title="Mudar tema"><i class="ph ph-moon"></i></button>
+      <button class="icon-btn" data-action="ajuda" aria-label="Como usar"><i class="ph ph-question"></i></button>
+    </div>
   </header>
 
   <main id="view" tabindex="-1"></main>

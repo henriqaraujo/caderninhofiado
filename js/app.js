@@ -1319,6 +1319,12 @@ function aplicarTema() {
   const escuro = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.dataset.theme = escuro ? 'dark' : 'light';
   const m = $('meta[name="theme-color"]'); if (m) m.content = escuro ? '#111318' : '#f5f6f8';
+  document.querySelectorAll('[data-tema-btn]').forEach(b => {
+    const ic = b.querySelector('i'), tx = b.querySelector('span');
+    if (ic) ic.className = 'ph ' + (escuro ? 'ph-sun' : 'ph-moon');
+    if (tx) tx.textContent = escuro ? 'Modo claro' : 'Modo escuro';
+    b.setAttribute('aria-label', escuro ? 'Mudar para o modo claro' : 'Mudar para o modo escuro');
+  });
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aplicarTema);
 
@@ -1347,6 +1353,7 @@ function abrirBoasVindas() {
 
 /* ---------- eventos ---------- */
 const acoes = {
+  'tema-alternar'() { db.config.tema = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; salvar(); aplicarTema(); if (ui.view === 'ajustes') render(); },
   ir: el => { fechar(); ir(el.dataset.view); },
   fechar: () => fechar(),
   ajuda: () => abrirAjuda(),

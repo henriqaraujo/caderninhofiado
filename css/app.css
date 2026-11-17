@@ -774,3 +774,8 @@ dialog.confirma{max-width:420px;border-radius:20px;margin:auto;width:calc(100% -
 .conta-links a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:600}
 .conta-links a:hover{background:var(--surface-2);color:var(--ink)}
 a.menu-item{text-decoration:none;color:inherit}
+
+/* botão de tema à vista */
+.top-acoes{display:flex;gap:4px}
+.side-tema{justify-content:flex-start;color:var(--ink-2)}
+.side-tema:hover{color:var(--ink)}

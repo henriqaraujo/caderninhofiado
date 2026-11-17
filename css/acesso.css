@@ -76,3 +76,6 @@ body.pag-acesso{min-height:100dvh;background:var(--bg)}
   .adm-tab tbody tr .adm-acoes{opacity:0;transform:translateX(6px);transition:opacity .15s,transform .15s}
   .adm-tab tbody tr:hover .adm-acoes,.adm-tab tbody tr:focus-within .adm-acoes{opacity:1;transform:none}
 }
+
+.tema-fixo{position:fixed;top:14px;right:14px;z-index:50;width:44px;height:44px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:20px;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.tema-fixo:hover{background:var(--surface-2)}
