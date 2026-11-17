@@ -714,17 +714,17 @@ dialog.confirma{max-width:420px;border-radius:20px;margin:auto;width:calc(100% -
 
 /* Início: linhas em colunas (cliente | produtos no meio | valor | situação | botões) */
 @media (min-width:960px){
-  .home .item .row.simples{display:grid;grid-template-columns:34px 190px minmax(0,1fr) 120px 150px;grid-template-areas:none;gap:0 14px;align-items:center}
-  .home .item .row.simples>*{grid-area:auto}
-  .home .item .row.simples .cell-main{display:contents}
-  .home .item .row.simples .cell-main strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .home .item .row.simples .cell-main small{text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-  .home .item .row.simples .cell-val{text-align:right;min-width:0}
-  .home .item .row.simples .badge{justify-self:center}
+  .home .lista-aten .item .row.simples{display:grid;grid-template-columns:34px 190px minmax(0,1fr) 120px 150px;grid-template-areas:none;gap:0 14px;align-items:center}
+  .home .lista-aten .item .row.simples>*{grid-area:auto}
+  .home .lista-aten .item .row.simples .cell-main{display:contents}
+  .home .lista-aten .item .row.simples .cell-main strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .home .lista-aten .item .row.simples .cell-main small{text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .home .lista-aten .item .row.simples .cell-val{text-align:right;min-width:0}
+  .home .lista-aten .item .row.simples .badge{justify-self:center}
 }
 @media (min-width:960px){
-  .home .item .row.simples{grid-template-columns:34px 150px minmax(0,1fr) 96px 132px;gap:0 12px}
-  .home .item .row.simples .cell-main small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
+  .home .lista-aten .item .row.simples{grid-template-columns:34px 150px minmax(0,1fr) 96px 132px;gap:0 12px}
+  .home .lista-aten .item .row.simples .cell-main small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
   .home .item-acoes{grid-template-columns:104px 96px}
 }
 

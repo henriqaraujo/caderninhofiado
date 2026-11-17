@@ -325,11 +325,11 @@ function vInicio() {
   const blocoAtencao = `<section class="card" aria-labelledby="h-aten">
     <div class="card-h"><h2 id="h-aten">Quem precisa de atenção</h2>${atencao.length ? '<button class="link" data-action="filtrar" data-status="abertos">Ver todos</button>' : ''}</div>
     <p class="card-sub">Primeiro os atrasados, depois os que vencem nesta semana.</p>
-    ${atencao.length ? `<div class="lista">${atencao.map(f => itemFiado(f, { acoes: true, simples: true })).join('')}</div>`
+    ${atencao.length ? `<div class="lista lista-aten">${atencao.map(f => itemFiado(f, { acoes: true, simples: true })).join('')}</div>`
       : `<div class="vazio"><i class="ph ph-check-circle"></i><h3>Tudo em dia</h3><p>Nenhum fiado atrasado nem vencendo nos próximos 7 dias.</p></div>`}
   </section>`;
 
-  return `<div class="home">` + cab + `<div class="avisos">${avisos}</div>` + tiles + `<div class="grade-2">${blocoAtencao}<div>${blocoGrafico()}${blocoDevedores()}${blocoUltimosPagamentos()}</div></div></div>`;
+  return `<div class="home">` + cab + `<div class="avisos">${avisos}</div>` + tiles + `<div class="grade-2"><div>${blocoAtencao}${blocoDevedores()}</div><div>${blocoGrafico()}${blocoUltimosPagamentos()}</div></div></div>`;
 }
 
 function blocoGrafico(qtd = 6) {
