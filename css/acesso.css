@@ -62,3 +62,17 @@ body.pag-acesso{min-height:100dvh;background:var(--bg)}
 [data-tip]:hover::after,[data-tip]:hover::before,[data-tip]:focus-visible::after,[data-tip]:focus-visible::before{opacity:1;transform:translate(-50%,0)}
 .adm-acoes form:last-child [data-tip]::after{left:auto;right:0;transform:translate(0,4px)}
 .adm-acoes form:last-child [data-tip]:hover::after,.adm-acoes form:last-child [data-tip]:focus-visible::after{transform:translate(0,0)}
+
+/* ações: discretas, só aparecem ao passar o mouse na linha */
+.adm-tab{overflow:visible}
+.adm-tab .tb{min-width:0}
+.adm-acoes{gap:4px}
+.adm-acoes .btn-pq{width:38px;height:38px;border:0;background:transparent;color:var(--ink-2);font-size:20px;border-radius:999px;box-shadow:none;transition:background .15s,color .15s,transform .1s}
+.adm-acoes .btn-pq:hover,.adm-acoes .btn-pq:focus-visible{background:var(--accent-soft);color:var(--accent)}
+.adm-acoes .btn-pq:active{transform:scale(.92)}
+.adm-acoes .btn-perigo{color:var(--danger)}
+.adm-acoes .btn-perigo:hover,.adm-acoes .btn-perigo:focus-visible{background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger)}
+@media (hover:hover) and (min-width:801px){
+  .adm-tab tbody tr .adm-acoes{opacity:0;transform:translateX(6px);transition:opacity .15s,transform .15s}
+  .adm-tab tbody tr:hover .adm-acoes,.adm-tab tbody tr:focus-within .adm-acoes{opacity:1;transform:none}
+}
