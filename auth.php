@@ -121,9 +121,10 @@ function cf_topo($titulo) {
     echo '<title>' . cf_h($titulo) . ' · Caderninho do Fiado</title><meta name="robots" content="noindex">';
     echo '<link rel="icon" href="' . $base . 'icons/icon.svg" type="image/svg+xml">';
     echo '<script>(function(){try{var d=JSON.parse(localStorage.getItem("caderninho-fiado-v1")||"{}");var t=(d.config&&d.config.tema)||"auto";var k=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",k?"dark":"light");}catch(e){}})();</script>';
-    echo '<link rel="stylesheet" href="' . $base . 'css/ph.css"><link rel="stylesheet" href="' . $base . 'css/app.css"><link rel="stylesheet" href="' . $base . 'css/acesso.css"></head><body class="pag-acesso">';
+    $v = static function ($f) { return '?v=' . (int) @filemtime(__DIR__ . '/' . $f); };
+    echo '<link rel="stylesheet" href="' . $base . 'css/ph.css' . $v('css/ph.css') . '"><link rel="stylesheet" href="' . $base . 'css/app.css' . $v('css/app.css') . '"><link rel="stylesheet" href="' . $base . 'css/acesso.css' . $v('css/acesso.css') . '"></head><body class="pag-acesso">';
 }
-function cf_rodape() { echo '<script src="' . cf_url('js/acesso.js') . '"></script></body></html>'; }
+function cf_rodape() { echo '<script src="' . cf_url('js/acesso.js') . '?v=' . (int) @filemtime(__DIR__ . '/js/acesso.js') . '"></script></body></html>'; }
 function cf_marca() { return '<div class="aut-marca"><span class="brand-mark"><i class="ph ph-notebook"></i></span><strong>Caderninho do Fiado</strong></div>'; }
 function cf_campo_senha($id, $nome, $rotulo, $auto = 'new-password') {
     return '<div class="campo"><label for="' . $id . '">' . $rotulo . '</label><div class="senha-wrap"><input type="password" id="' . $id . '" name="' . $nome . '" autocomplete="' . $auto . '" required minlength="6"><button type="button" class="ver-senha" data-ver="' . $id . '" aria-label="Mostrar ou esconder a senha"><i class="ph ph-eye"></i></button></div></div>';
