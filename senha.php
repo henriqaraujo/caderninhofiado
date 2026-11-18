@@ -7,10 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (!cf_senha_ok($_POST['nova'] ?? '')) $erro = 'A nova senha precisa ter pelo menos 6 caracteres.';
     elseif (($_POST['nova'] ?? '') !== ($_POST['nova2'] ?? '')) $erro = 'As duas senhas novas não são iguais.';
     else {
-        $l = cf_usuarios();
-        foreach ($l as &$x) if ($x['id'] === $eu['id']) { $x['hash'] = password_hash($_POST['nova'], PASSWORD_DEFAULT); $x['senhaEm'] = date('Y-m-d H:i'); $novo = $x; }
-        unset($x);
-        if (cf_salvar_usuarios($l)) { cf_entrar($novo); $msg = 'Senha alterada com sucesso.'; } else $erro = 'Não consegui salvar a nova senha.';
+        $novo = $eu; $novo['hash'] = password_hash($_POST['nova'], PASSWORD_DEFAULT);
+        if (cf_u_set($eu['id'], array('hash' => $novo['hash']))) { cf_entrar($novo); $msg = 'Senha alterada com sucesso.'; } else $erro = 'Não consegui salvar a nova senha.';
     }
 }
 cf_topo('Minha senha');

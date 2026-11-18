@@ -16,3 +16,12 @@ ACESSO (LOGIN) E ADMINISTRAÇÃO
 - Administração (menu "Mais" ou lado esquerdo): criar usuários, trocar senha, desativar, tornar admin, excluir.
 - Os usuários ficam na pasta _dados_caderninho (criada automaticamente ao lado da pasta do sistema, em public_html). Ela precisa de permissão de escrita.
 - O login só controla quem entra. Os dados dos fiados continuam salvos no navegador de cada aparelho.
+
+
+BANCO DE DADOS (MySQL da Locaweb)
+- Os dados de cada comércio ficam no banco. Todos os usuários do comércio veem o mesmo caderninho, em qualquer aparelho.
+- A conexão é configurada uma vez em Administração > Banco de dados (endereço, nome do banco, usuário e senha). Esses dados ficam só na pasta protegida _dados_caderninho/banco.php e NUNCA vão para o GitHub.
+- Ao conectar, as tabelas são criadas e os usuários antigos são trazidos para o banco automaticamente.
+- Cada usuário novo criado pelo admin vira um comércio (com os dias de teste). O dono pode adicionar até 5 pessoas em "Minha equipe". O período de teste vale para o comércio todo.
+- O caderninho que já estava no navegador de um usuário é enviado ao servidor no primeiro acesso depois da atualização.
+- Cópia diária automática no próprio banco (tabela dados_bkp, últimos 14 dias).

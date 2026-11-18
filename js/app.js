@@ -1,9 +1,14 @@
 /* Caderninho do Fiado
-   Tudo roda no navegador. Os dados ficam no aparelho de quem usa (localStorage), nada vai para o servidor. */
+   Os dados do comércio ficam no banco de dados do servidor (todos os usuários do comércio veem o mesmo caderninho).
+   Uma cópia fica no aparelho (localStorage) para abrir rápido e funcionar se a internet cair. */
 'use strict';
 (() => {
 
-const KEY = 'caderninho-fiado-v1';
+const KEY = 'caderninho-fiado-v1';                       // caderninho antigo (só no aparelho)
+const SYNC = !!(window.CF_USER && window.CF_USER.sync);   // dados no servidor?
+const CACHE = SYNC ? 'caderninho-fiado-c-' + window.CF_USER.cid : KEY;
+const CACHE_SRV = CACHE + '-srv';                          // última versão conhecida do servidor
+const KEY_TEMA = 'cf-tema';
 const MSG_PADRAO = 'Olá, {nome}! Aqui é do {comercio}. Passando para lembrar do seu fiado de {valor}, com vencimento em {vencimento}. Qualquer dúvida é só chamar. Obrigado!';
 
 /* ---------- utilidades ---------- */
@@ -60,15 +65,23 @@ function normalizar(d) {
   };
 }
 function carregar() {
-  try { const r = localStorage.getItem(KEY); if (r) return normalizar(JSON.parse(r)); } catch (e) { /* segue com vazio */ }
+  try {
+    let r = localStorage.getItem(CACHE);
+    if (!r && SYNC) r = localStorage.getItem(KEY);   // caderninho antigo: será enviado ao servidor na primeira vez
+    if (r) return normalizar(JSON.parse(r));
+  } catch (e) { /* segue com vazio */ }
   return vazio();
 }
 let db = carregar();
 function salvar() {
-  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  try { localStorage.setItem(CACHE, JSON.stringify(db)); }
   catch (e) { toast('Não foi possível guardar os dados neste navegador. Baixe uma cópia de segurança agora.', 'erro'); return; }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  if (SYNC) agendarEnvio();
 }
+/* tema é escolha de cada pessoa/aparelho, não do comércio */
+function temaAtual() { try { return localStorage.getItem(KEY_TEMA) || db.config.tema || 'auto'; } catch (e) { return db.config.tema || 'auto'; } }
+function setTema(v) { try { localStorage.setItem(KEY_TEMA, v); } catch (e) { /* ignora */ } if (!SYNC) { db.config.tema = v; salvar(); } aplicarTema(); }
 
 const pago = f => f.pagamentos.reduce((s, p) => s + p.valor, 0);
 const restante = f => f.valor - pago(f);
@@ -310,7 +323,7 @@ function vInicio() {
   if (db.config.demo) avisos += `<div class="aviso info"><i class="ph ph-info"></i><div><strong>Você está vendo dados de exemplo</strong>Eles servem só para conhecer o sistema. Quando quiser começar de verdade, apague os exemplos.<br><button class="btn" data-action="apagar-exemplo">Apagar exemplos e começar</button></div></div>`;
   const pend = paraCobrar().filter(x => !x.feito);
   if (pend.length) avisos += `<div class="aviso"><i class="ph ph-bell-ringing"></i><div><strong>Hoje ${pend.length === 1 ? 'tem 1 cliente' : 'tem ' + pend.length + ' clientes'} para cobrar</strong>Somam ${brl(pend.reduce((t, x) => t + x.total, 0))} em fiados vencidos ou que vencem hoje.<br><button class="btn btn-primary" data-action="cobrancas"><i class="ph ph-whatsapp-logo"></i>Ver quem cobrar</button></div></div>`;
-  if (!db.config.demo && db.fiados.length && precisaBackup()) avisos += `<div class="aviso"><i class="ph ph-shield-warning"></i><div><strong>Faça a cópia de segurança</strong>Seus dados ficam só neste aparelho. ${db.config.ultimoBackup ? 'Faz mais de uma semana desde a última cópia.' : 'Você ainda não fez nenhuma cópia.'} Se o navegador for limpo, tudo se perde.<br><button class="btn" data-action="baixar-backup"><i class="ph ph-download-simple"></i>Baixar cópia agora</button></div></div>`;
+  if (!SYNC && !db.config.demo && db.fiados.length && precisaBackup()) avisos += `<div class="aviso"><i class="ph ph-shield-warning"></i><div><strong>Faça a cópia de segurança</strong>Seus dados ficam só neste aparelho. ${db.config.ultimoBackup ? 'Faz mais de uma semana desde a última cópia.' : 'Você ainda não fez nenhuma cópia.'} Se o navegador for limpo, tudo se perde.<br><button class="btn" data-action="baixar-backup"><i class="ph ph-download-simple"></i>Baixar cópia agora</button></div></div>`;
 
   const tiles = `<div class="stats">
     <button class="stat" data-action="filtrar" data-status="abertos"><span class="rot"><i class="ph ph-wallet"></i>Falta receber</span><span class="val">${brl(s.aberto)}</span><span class="sub">${s.nAberto} ${s.nAberto === 1 ? 'fiado em aberto' : 'fiados em aberto'}</span></button>
@@ -881,7 +894,8 @@ function vMais() {
     ${it('ajustes', 'ph-gear-six', 'Ajustes e cópia de segurança', 'Nome do comércio, mensagem de cobrança, tema')}
     <button class="menu-item" data-action="ajuda"><span class="menu-ic"><i class="ph ph-question"></i></span><span class="menu-tx"><strong>Como usar</strong><small>Passo a passo rápido</small></span><i class="ph ph-caret-right"></i></button>
     ${window.CF_USER ? `<p class="nav-grupo" style="margin-top:14px">Minha conta (${esc(window.CF_USER.nome)})</p>
-    ${window.CF_USER.admin ? lnk('admin.php', 'ph-shield-check', 'Administração', 'Criar usuários e trocar senhas') : ''}
+    ${window.CF_USER.admin ? lnk('admin.php', 'ph-shield-check', 'Administração', 'Comércios, usuários e período de teste') : ''}
+    ${window.CF_USER.dono ? lnk('equipe.php', 'ph-users-three', 'Minha equipe', 'Dar acesso a outras pessoas do comércio') : ''}
     ${lnk('senha.php', 'ph-key', 'Minha senha', 'Alterar a senha de acesso')}
     ${lnk('sair.php', 'ph-sign-out', 'Sair', 'Fechar o caderninho neste aparelho')}` : ''}
   </div>`;
@@ -894,11 +908,11 @@ function precisaBackup() {
 }
 function vAjustes() {
   const c = db.config;
-  const tema = (v, t, ic) => `<label class="chip"><input type="radio" name="tema" value="${v}" data-bind="tema" ${c.tema === v ? 'checked' : ''}><span><i class="ph ${ic}"></i>${t}</span></label>`;
+  const tema = (v, t, ic) => `<label class="chip"><input type="radio" name="tema" value="${v}" data-bind="tema" ${temaAtual() === v ? 'checked' : ''}><span><i class="ph ${ic}"></i>${t}</span></label>`;
   return `<div class="pagina-h"><div><h1>Ajustes e cópia de segurança</h1><p>Deixe o sistema com a cara do seu comércio e proteja seus dados.</p></div></div>
   <section class="card ajuste-bloco" aria-labelledby="h-bk">
     <div class="card-h"><h2 id="h-bk">Cópia de segurança</h2></div>
-    <p class="card-sub">Seus dados ficam guardados <b>só neste aparelho</b>, dentro do navegador. Não vão para a internet. Por isso, se você limpar os dados do navegador ou trocar de celular ou computador, eles se perdem. Baixe uma cópia toda semana e guarde no WhatsApp, e-mail ou Google Drive.</p>
+    <p class="card-sub">${SYNC ? 'Seus dados ficam guardados <b>no servidor</b>, com cópia automática diária. Mesmo assim, é bom baixar uma cópia de vez em quando e guardar no WhatsApp, e-mail ou Google Drive.' : 'Seus dados ficam guardados <b>só neste aparelho</b>, dentro do navegador. Não vão para a internet. Por isso, se você limpar os dados do navegador ou trocar de celular ou computador, eles se perdem. Baixe uma cópia toda semana e guarde no WhatsApp, e-mail ou Google Drive.'}</p>
     <p class="muted" style="margin-bottom:14px">${c.ultimoBackup ? 'Última cópia: <b>' + fmtData(c.ultimoBackup) + '</b>' : 'Você ainda não baixou nenhuma cópia.'}</p>
     <div class="botoes-linha">
       <button class="btn btn-primary" data-action="baixar-backup"><i class="ph ph-download-simple"></i>Baixar cópia de segurança</button>
@@ -1315,7 +1329,7 @@ function carregarExemplo() {
 
 /* ---------- tema ---------- */
 function aplicarTema() {
-  const t = db.config.tema;
+  const t = temaAtual();
   const escuro = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.dataset.theme = escuro ? 'dark' : 'light';
   const m = $('meta[name="theme-color"]'); if (m) m.content = escuro ? '#111318' : '#f5f6f8';
@@ -1337,12 +1351,12 @@ function abrirAjuda() {
     <li><div><strong>Quando ele pagar, toque em Receber</strong><span>Abra o fiado e confirme o valor. Se pagou só uma parte, o resto continua anotado. Em <b>Quem já pagou</b> você vê tudo que já recebeu.</span></div></li>
     <li><div><strong>Cobre sem constrangimento</strong><span>No Início aparece quem você precisa cobrar hoje. O botão do WhatsApp abre a conversa com uma mensagem educada já escrita. Você pode mudar o texto nos Ajustes.</span></div></li>
     <li><div><strong>Controle o limite e os atrasos</strong><span>No cadastro do cliente dá para definir um limite de fiado. Nos Ajustes você pode ligar multa e juros por atraso. Em <b>Relatórios</b> você vê o resumo do mês, quem está atrasado e o que mais vende.</span></div></li>
-    <li><div><strong>Faça a cópia de segurança</strong><span>Seus dados ficam só neste aparelho. Em Ajustes, baixe uma cópia toda semana e guarde em um lugar seguro.</span></div></li>
+    <li><div><strong>Faça a cópia de segurança</strong><span>${SYNC ? 'Seus dados ficam guardados no servidor, com cópia automática. Em Ajustes, você também pode baixar uma cópia sua.' : 'Seus dados ficam só neste aparelho. Em Ajustes, baixe uma cópia toda semana e guarde em um lugar seguro.'}</span></div></li>
   </ol><div class="sheet-acoes"><button class="btn btn-primary btn-grande" data-action="fechar">Entendi</button></div>`));
 }
 function abrirBoasVindas() {
   abrir(`<div class="sheet"><header class="sheet-h"><h2>Bem-vindo ao Caderninho</h2></header><div class="sheet-b">
-    <p class="muted" style="margin-bottom:16px">Aqui você anota quem pegou fiado, quanto e quando vai pagar. Seus dados ficam guardados só neste aparelho, nada vai para a internet.</p>
+    <p class="muted" style="margin-bottom:16px">Aqui você anota quem pegou fiado, quanto e quando vai pagar. ${SYNC ? 'Seus dados ficam guardados com segurança no servidor e podem ser vistos por quem tiver acesso ao seu comércio.' : 'Seus dados ficam guardados só neste aparelho, nada vai para a internet.'}</p>
     <form data-form="boasvindas" novalidate>
       <div class="campo"><label for="bv-nome">Como se chama o seu comércio?</label><input type="text" id="bv-nome" name="comercio" placeholder="Exemplo: Mercearia do Zé" autofocus autocomplete="off"><small class="ajuda">Vai aparecer no topo e nas mensagens de cobrança. Dá para mudar depois.</small></div>
       <div class="campo"><label for="bv-ramo">Qual é o seu ramo? (opcional)</label><select id="bv-ramo" name="ramo"><option value="">Escolher o ramo</option>${Object.entries(RAMOS).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select><small class="ajuda">Com o ramo, o sistema sugere os produtos ou serviços mais comuns para você cadastrar.</small></div>
@@ -1353,7 +1367,7 @@ function abrirBoasVindas() {
 
 /* ---------- eventos ---------- */
 const acoes = {
-  'tema-alternar'() { db.config.tema = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; salvar(); aplicarTema(); if (ui.view === 'ajustes') render(); },
+  'tema-alternar'() { setTema(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); if (ui.view === 'ajustes') render(); },
   ir: el => { fechar(); ir(el.dataset.view); },
   fechar: () => fechar(),
   ajuda: () => abrirAjuda(),
@@ -1484,8 +1498,8 @@ const acoes = {
     db.clientes = []; db.produtos = []; db.fiados = []; db.config.demo = false; salvar(); render(); toast('Pronto, o caderninho está vazio.');
   },
   'apagar-tudo': async () => {
-    if (!await confirmar({ titulo: 'Apagar todos os dados?', texto: 'Clientes, fiados e pagamentos serão apagados deste aparelho. Só dá para recuperar se você tiver uma cópia de segurança.', ok: 'Sim, apagar tudo' })) return;
-    const nome = db.config.comercio, tema = db.config.tema; db = vazio(); db.config.comercio = nome; db.config.tema = tema; db.config.iniciado = true;
+    if (!await confirmar({ titulo: 'Apagar todos os dados?', texto: SYNC ? 'Clientes, fiados e pagamentos serão apagados para todos os usuários do comércio. Só dá para recuperar se você tiver uma cópia de segurança.' : 'Clientes, fiados e pagamentos serão apagados deste aparelho. Só dá para recuperar se você tiver uma cópia de segurança.', ok: 'Sim, apagar tudo' })) return;
+    const nome = db.config.comercio; db = vazio(); db.config.comercio = nome; db.config.iniciado = true;
     salvar(); render(); toast('Todos os dados foram apagados.');
   },
   'msg-padrao': () => { $('#a-msg').value = MSG_PADRAO; atualizarPrevia(); },
@@ -1608,7 +1622,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const t = e.target, b = t.dataset && t.dataset.bind;
   if (b === 'cliente' || b === 'ordem' || b === 'de' || b === 'ate') { ui.f[b] = t.value; if (b === 'ordem') ui.sort.fiados = null; renderLista(); }
-  else if (b === 'tema') { db.config.tema = t.value; salvar(); aplicarTema(); }
+  else if (b === 'tema') { setTema(t.value); }
   else if (b === 'pg-cliente') { ui.pg.cliente = t.value; renderPagos(); }
   else if (b === 'pg-forma') { ui.pg.forma = t.value; renderPagos(); }
   else if (b === 'ramo-sug') { $('#sug-lista').innerHTML = listaSug(t.value); }
@@ -1634,10 +1648,109 @@ $('#arquivo').addEventListener('change', e => { if (e.target.files[0]) restaurar
 let pedidoInstalar = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; const b = $('#bt-instalar'); if (b) b.hidden = false; });
 
+
+/* ---------- sincronização com o servidor ---------- */
+const clone = o => JSON.parse(JSON.stringify(o));
+const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+let srvVer = 0, srvDb = null, enviando = false, pendente = false, tEnvio = null, avisouOff = false;
+try { const s = JSON.parse(localStorage.getItem(CACHE_SRV) || 'null'); if (s && s.db) { srvVer = s.ver; srvDb = s.db; } } catch (e) { /* ignora */ }
+function guardarSrv() { try { localStorage.setItem(CACHE_SRV, JSON.stringify({ ver: srvVer, db: srvDb })); } catch (e) { /* ignora */ } }
+function statusSync(s) {
+  document.body.dataset.sync = s;
+  const t = { ok: 'Salvo', salvando: 'Salvando…', erro: 'Sem conexão: salvo neste aparelho' }[s] || '';
+  document.querySelectorAll('[data-sync-chip]').forEach(el => { el.textContent = t; el.title = t; });
+}
+function api(metodo, corpo) {
+  return fetch('api.php', { method: metodo, credentials: 'same-origin', cache: 'no-store',
+    headers: { 'Content-Type': 'application/json', 'X-CF': window.CF_USER.csrf }, body: corpo ? JSON.stringify(corpo) : undefined });
+}
+/* junta o que mudou aqui (local) com o que mudou no servidor, tendo a última versão conhecida (base) como referência */
+function fundirReg(b, l, s) {
+  const r = { ...s };
+  Object.keys(l).forEach(k => {
+    if (k === 'pagamentos') r.pagamentos = fundirLista(b.pagamentos || [], l.pagamentos || [], s.pagamentos || []);
+    else if (!igual(l[k], b[k])) r[k] = l[k];
+  });
+  Object.keys(b).forEach(k => { if (!(k in l)) delete r[k]; });
+  return r;
+}
+function fundirLista(base, local, srv) {
+  const bM = new Map(base.map(x => [x.id, x])), lM = new Map(local.map(x => [x.id, x]));
+  const out = srv.filter(x => !(bM.has(x.id) && !lM.has(x.id)));   // apagados aqui, saem
+  local.forEach(l => {
+    const b = bM.get(l.id), i = out.findIndex(x => x.id === l.id);
+    if (!b) { if (i === -1) out.push(l); return; }                  // novos aqui
+    if (igual(b, l)) return;                                         // sem mudança aqui: vale o servidor
+    if (i === -1) out.push(l); else out[i] = fundirReg(b, l, out[i]);
+  });
+  return out;
+}
+function fundir(base, local, srv) {
+  base = normalizar(base || vazio()); srv = normalizar(srv);
+  const cfg = { ...srv.config };
+  Object.keys(local.config).forEach(k => { if (!igual(local.config[k], base.config[k])) cfg[k] = local.config[k]; });
+  return { config: cfg, clientes: fundirLista(base.clientes, local.clientes, srv.clientes), produtos: fundirLista(base.produtos, local.produtos, srv.produtos), fiados: fundirLista(base.fiados, local.fiados, srv.fiados) };
+}
+function adotar(d) { db = normalizar(d); try { localStorage.setItem(CACHE, JSON.stringify(db)); } catch (e) { /* ignora */ } }
+function agendarEnvio() { statusSync('salvando'); clearTimeout(tEnvio); tEnvio = setTimeout(enviar, 700); }
+async function enviar() {
+  if (enviando) { pendente = true; return; }
+  enviando = true; pendente = false;
+  try {
+    for (let i = 0; i < 5; i++) {
+      const snap = clone(db), r = await api('POST', { base: srvVer, dados: snap });
+      if (r.status === 200) { const j = await r.json(); srvVer = j.versao; srvDb = snap; guardarSrv(); statusSync('ok'); avisouOff = false; break; }
+      if (r.status === 409) {
+        const j = await r.json();
+        if (j.erro !== 'versao') throw new Error('409');
+        const merged = fundir(srvDb, db, j.dados);
+        srvVer = j.versao; srvDb = normalizar(j.dados); adotar(merged); guardarSrv(); render(); continue;
+      }
+      if (r.status === 401) { toast('Sua sessão terminou. Entre de novo para continuar.', 'erro'); setTimeout(() => location.reload(), 2500); break; }
+      throw new Error('http ' + r.status);
+    }
+  } catch (e) {
+    statusSync('erro');
+    if (!avisouOff) { avisouOff = true; toast('Sem conexão com o servidor. Suas alterações estão salvas neste aparelho e serão enviadas quando voltar.', 'erro'); }
+    setTimeout(() => { if (!enviando && !igual(db, srvDb)) enviar(); }, 15000);
+  } finally { enviando = false; if (pendente) enviar(); }
+}
+const temModal = () => !!document.querySelector('dialog[open]');
+async function buscar(inicial) {
+  if (enviando || document.hidden && !inicial) return;
+  try {
+    const r = await api('GET');
+    if (r.status === 401) { location.reload(); return; }
+    if (!r.ok) throw new Error('http ' + r.status);
+    const j = await r.json(), sujo = !srvDb || !igual(db, srvDb);
+    if (j.versao === 0) {                                   // servidor vazio: envia o que há aqui (migração do aparelho)
+      if (!srvDb) { srvDb = null; srvVer = 0; }
+      if (db.clientes.length || db.fiados.length || db.produtos.length || db.config.iniciado) await enviar(); else statusSync('ok');
+      return;
+    }
+    if (j.versao === srvVer && srvDb) { if (sujo) enviar(); else statusSync('ok'); return; }
+    if (!srvDb) {                                            // primeira vez neste aparelho: o servidor manda
+      try { if (localStorage.getItem(KEY) && !localStorage.getItem(KEY + '-antes-do-servidor')) localStorage.setItem(KEY + '-antes-do-servidor', localStorage.getItem(KEY)); } catch (e) { /* ignora */ }
+      adotar(j.dados); srvVer = j.versao; srvDb = clone(db); guardarSrv(); statusSync('ok'); render(); return;
+    }
+    if (sujo) { enviar(); return; }                          // tenho mudanças: junta no envio
+    if (temModal() && !inicial) return;                      // não atrapalha quem está digitando
+    adotar(j.dados); srvVer = j.versao; srvDb = clone(db); guardarSrv(); statusSync('ok'); render();
+  } catch (e) { statusSync('erro'); }
+}
+if (SYNC) {
+  setInterval(() => buscar(false), 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) buscar(false); });
+  window.addEventListener('online', () => buscar(false));
+}
+
 /* ---------- inicio ---------- */
 aplicarTema();
 render();
-if (!db.config.iniciado && !db.clientes.length && !db.fiados.length) abrirBoasVindas();
+if (SYNC) {
+  statusSync('salvando');
+  buscar(true).then(() => { render(); if (!db.config.iniciado && !db.clientes.length && !db.fiados.length) abrirBoasVindas(); });
+} else if (!db.config.iniciado && !db.clientes.length && !db.fiados.length) abrirBoasVindas();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }

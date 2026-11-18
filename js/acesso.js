@@ -48,7 +48,7 @@
     b.addEventListener('click', function () {
       var novo = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = novo;
-      try { var d = JSON.parse(localStorage.getItem('caderninho-fiado-v1') || '{}'); d.config = d.config || {}; d.config.tema = novo; localStorage.setItem('caderninho-fiado-v1', JSON.stringify(d)); } catch (e) {}
+      try { localStorage.setItem('cf-tema', novo); } catch (e) {}
       pinta();
     });
     pinta(); document.body.appendChild(b);

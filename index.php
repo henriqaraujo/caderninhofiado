@@ -24,7 +24,7 @@ header('Cache-Control: no-store');
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script>
 /* Aplica o tema antes de desenhar a tela, para não piscar */
-(function(){try{var d=JSON.parse(localStorage.getItem('caderninho-fiado-v1')||'{}');var t=(d.config&&d.config.tema)||'auto';
+(function(){try{var d=JSON.parse(localStorage.getItem('caderninho-fiado-v1')||'{}');var t=localStorage.getItem('cf-tema')||(d.config&&d.config.tema)||'auto';
 var dark=t==='dark'||(t==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
 document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e){}})();
 </script>
@@ -55,11 +55,13 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
     </nav>
     <button class="btn btn-primary btn-grande" data-action="novo-fiado"><i class="ph ph-plus"></i>Anotar fiado</button>
     <button class="btn btn-ghost side-ajuda" data-action="ajuda"><i class="ph ph-question"></i>Como usar</button>
+    <p class="sync-chip" data-sync-chip aria-live="polite"></p>
     <button class="btn btn-ghost side-tema" data-action="tema-alternar" data-tema-btn><i class="ph ph-moon"></i><span>Modo escuro</span></button>
     <div class="conta" aria-label="Minha conta">
       <p class="conta-nome"><i class="ph ph-user-circle"></i><span><?= cf_h($eu['nome']) ?></span></p>
       <div class="conta-links">
         <?php if (!empty($eu['admin'])): ?><a href="admin.php"><i class="ph ph-shield-check"></i>Administração</a><?php endif; ?>
+        <?php if (!empty($eu['dono']) && cf_modo_banco()): ?><a href="equipe.php"><i class="ph ph-users-three"></i>Minha equipe</a><?php endif; ?>
         <a href="senha.php"><i class="ph ph-key"></i>Minha senha</a>
         <a href="sair.php"><i class="ph ph-sign-out"></i>Sair</a>
       </div>
@@ -71,7 +73,7 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
       <span class="brand-mark"><i class="ph ph-notebook"></i></span>
       <span class="brand-txt"><strong id="top-titulo">Caderninho do Fiado</strong></span>
     </div>
-    <div class="top-acoes">
+    <div class="top-acoes"><span class="sync-chip" data-sync-chip aria-live="polite"></span>
       <button class="icon-btn" data-action="tema-alternar" data-tema-btn aria-label="Mudar para o modo escuro" title="Mudar tema"><i class="ph ph-moon"></i></button>
       <button class="icon-btn" data-action="ajuda" aria-label="Como usar"><i class="ph ph-question"></i></button>
     </div>
@@ -96,7 +98,7 @@ document.documentElement.setAttribute('data-theme',dark?'dark':'light');}catch(e
 <input type="file" id="arquivo" accept=".json,application/json" hidden>
 
 <noscript><p style="padding:24px;font-family:sans-serif">Para usar o Caderninho do Fiado é preciso ativar o JavaScript no navegador.</p></noscript>
-<script>window.CF_USER = <?= json_encode(array("nome" => $eu["nome"], "usuario" => $eu["usuario"], "admin" => !empty($eu["admin"]))) ?>;</script>
+<script>window.CF_USER = <?= json_encode(array("nome" => $eu["nome"], "usuario" => $eu["usuario"], "admin" => !empty($eu["admin"]), "dono" => !empty($eu["dono"]) && cf_modo_banco(), "sync" => cf_modo_banco(), "cid" => $eu["cid"], "comercio" => $eu["cnome"], "csrf" => cf_csrf())) ?>;</script>
 <script src="js/controles.js"></script>
 <script src="js/app.js"></script>
 </body>

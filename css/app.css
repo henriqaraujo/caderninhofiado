@@ -779,3 +779,9 @@ a.menu-item{text-decoration:none;color:inherit}
 .top-acoes{display:flex;gap:4px}
 .side-tema{justify-content:flex-start;color:var(--ink-2)}
 .side-tema:hover{color:var(--ink)}
+
+/* estado do salvamento */
+.sync-chip{font-size:12px;color:var(--ink-2);margin:0 4px;display:flex;align-items:center;min-height:16px}
+.sync-chip:empty{display:none}
+body[data-sync="erro"] .sync-chip{color:var(--danger);font-weight:600}
+.top-acoes .sync-chip{align-self:center;max-width:120px;text-align:right;line-height:1.1}

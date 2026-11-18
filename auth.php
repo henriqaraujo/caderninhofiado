@@ -87,7 +87,7 @@ function cf_atual() {
     list($id, $exp, $marca, $ass) = $p;
     if (!hash_equals(cf_assinar($id . '.' . $exp . '.' . $marca), $ass)) return null;
     if ((int)$exp < time()) return null;
-    $u = cf_achar(cf_usuarios(), 'id', $id);
+    $u = cf_u_id($id);
     if (!$u || empty($u['ativo'])) return null;
     if (substr(md5($u['hash']), 0, 12) !== $marca) return null;   // trocou a senha: sai de todos os aparelhos
     if (cf_expirado($u)) { $GLOBALS['cf_expirou'] = $u; return null; }
@@ -141,7 +141,7 @@ function cf_topo($titulo) {
     echo '<!DOCTYPE html><html lang="pt-BR" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">';
     echo '<title>' . cf_h($titulo) . ' · Caderninho do Fiado</title><meta name="robots" content="noindex">';
     echo '<link rel="icon" href="' . $base . 'icons/icon.svg" type="image/svg+xml">';
-    echo '<script>(function(){try{var d=JSON.parse(localStorage.getItem("caderninho-fiado-v1")||"{}");var t=(d.config&&d.config.tema)||"auto";var k=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",k?"dark":"light");}catch(e){}})();</script>';
+    echo '<script>(function(){try{var d=JSON.parse(localStorage.getItem("caderninho-fiado-v1")||"{}");var t=localStorage.getItem("cf-tema")||(d.config&&d.config.tema)||"auto";var k=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",k?"dark":"light");}catch(e){}})();</script>';
     $v = static function ($f) { return '?v=' . (int) @filemtime(__DIR__ . '/' . $f); };
     echo '<link rel="stylesheet" href="' . $base . 'css/ph.css' . $v('css/ph.css') . '"><link rel="stylesheet" href="' . $base . 'css/app.css' . $v('css/app.css') . '"><link rel="stylesheet" href="' . $base . 'css/acesso.css' . $v('css/acesso.css') . '"></head><body class="pag-acesso">';
 }
@@ -150,3 +150,5 @@ function cf_marca() { return '<div class="aut-marca"><span class="brand-mark"><i
 function cf_campo_senha($id, $nome, $rotulo, $auto = 'new-password') {
     return '<div class="campo"><label for="' . $id . '">' . $rotulo . '</label><div class="senha-wrap"><input type="password" id="' . $id . '" name="' . $nome . '" autocomplete="' . $auto . '" required minlength="6"><button type="button" class="ver-senha" data-ver="' . $id . '" aria-label="Mostrar ou esconder a senha"><i class="ph ph-eye"></i></button></div></div>';
 }
+
+require __DIR__ . '/db.php';

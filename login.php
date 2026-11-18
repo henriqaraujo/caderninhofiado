@@ -1,6 +1,7 @@
 <?php
 define('CF', 1); require __DIR__ . '/auth.php';
-$erro = ''; $usuarios = cf_usuarios(); $primeiro = count($usuarios) === 0;
+cf_db_exigir();
+$erro = ''; $primeiro = count(cf_u_todos()) === 0;
 if (cf_atual()) cf_ir('');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,8 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif (!cf_senha_ok($s)) $erro = 'A senha precisa ter pelo menos 6 caracteres.';
         elseif ($s !== $s2) $erro = 'As duas senhas não são iguais.';
         else {
-            $u = cf_novo_usuario($login, $nome, $s, true);
-            if (!cf_salvar_usuarios(array($u))) $erro = 'Não consegui salvar. Confira se a pasta do site permite gravar arquivos.';
+            $cid = cf_modo_banco() ? cf_c_criar($nome, null) : 'arquivo';
+            $u = cf_u_criar($cid, $login, $nome, $s, true, true);
+            if (!$u) $erro = 'Não consegui salvar. Confira se a pasta do site permite gravar arquivos.';
             else { cf_entrar($u); cf_ir(''); }
         }
     } else {
@@ -22,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $min = cf_bloqueado($login);
         if ($min) $erro = 'Muitas tentativas. Tente de novo em ' . $min . ' minuto' . ($min > 1 ? 's' : '') . '.';
         else {
-            $u = cf_achar($usuarios, 'usuario', strtolower($login));
+            $u = cf_u_login($login);
             $ok = $u && !empty($u["ativo"]) && !cf_expirado($u) && password_verify($senha, $u["hash"]);
             if (!$u) password_verify($senha, '$2y$10$abcdefghijklmnopqrstuuF4mZcQJ0m5yQ0h3o2YcJw1y8s6u5eXe');  // gasta o mesmo tempo
             if ($ok) { cf_limpar_falhas($login); if (password_needs_rehash($u['hash'], PASSWORD_DEFAULT)) { /* mantém */ } cf_entrar($u); cf_ir(''); }
