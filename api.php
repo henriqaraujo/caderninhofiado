@@ -18,6 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals(cf_csrf(), (string)$tok)) resp(403, array('erro' => 'csrf'));
     $raw = file_get_contents('php://input');
     if (strlen($raw) > 12 * 1024 * 1024) resp(413, array('erro' => 'grande'));
+    /* o app manda "z:" + gzip em base64 (ou "b:" + base64); JSON puro continua aceito */
+    $pre = substr($raw, 0, 2);
+    if ($pre === 'z:' || $pre === 'b:') {
+        $bin = base64_decode(substr($raw, 2), true);
+        if ($bin === false) resp(400, array('erro' => 'formato'));
+        if ($pre === 'z:') {
+            $bin = function_exists('gzdecode') ? @gzdecode($bin) : false;
+            if ($bin === false) resp(400, array('erro' => 'formato'));
+        }
+        $raw = $bin;
+    }
     $in = json_decode($raw, true);
     if (!is_array($in) || !isset($in['dados']) || !is_array($in['dados']) || !isset($in['base'])) resp(400, array('erro' => 'formato'));
     $d = $in['dados'];

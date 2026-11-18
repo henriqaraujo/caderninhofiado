@@ -1660,9 +1660,20 @@ function statusSync(s) {
   const t = { ok: 'Salvo', salvando: 'Salvando…', erro: 'Sem conexão: salvo neste aparelho' }[s] || '';
   document.querySelectorAll('[data-sync-chip]').forEach(el => { el.textContent = t; el.title = t; });
 }
-function api(metodo, corpo) {
+/* o envio vai compactado e embrulhado em texto simples: o servidor da hospedagem barrava o JSON "aberto" quando era grande */
+async function empacotar(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let out = bytes, pre = 'b:';
+  if (window.CompressionStream) {
+    try { out = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer()); pre = 'z:'; } catch (e) { out = bytes; pre = 'b:'; }
+  }
+  let bin = '';
+  for (let i = 0; i < out.length; i += 0x8000) bin += String.fromCharCode.apply(null, out.subarray(i, i + 0x8000));
+  return pre + btoa(bin);
+}
+async function api(metodo, corpo) {
   return fetch('api.php', { method: metodo, credentials: 'same-origin', cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CF': window.CF_USER.csrf }, body: corpo ? JSON.stringify(corpo) : undefined });
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'X-CF': window.CF_USER.csrf }, body: corpo ? await empacotar(corpo) : undefined });
 }
 /* junta o que mudou aqui (local) com o que mudou no servidor, tendo a última versão conhecida (base) como referência */
 function fundirReg(b, l, s) {

@@ -1,6 +1,6 @@
 /* Guarda os arquivos no aparelho para o sistema abrir mesmo sem internet.
    Com internet, sempre busca a versão mais nova primeiro. Ao publicar uma versão nova, troque o número em VERSAO. */
-const VERSAO = 'v10';
+const VERSAO = 'v11';
 const NOME = 'caderninho-fiado-' + VERSAO;
 const ARQUIVOS = [
   'css/app.css', 'css/ph.css', 'js/app.js', 'js/controles.js', 'manifest.webmanifest',
