@@ -82,3 +82,11 @@ body.pag-acesso{min-height:100dvh;background:var(--bg)}
 
 .adm input[type=number],.adm-dlg input[type=number]{width:100%;min-height:52px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:17px}
 .adm-dlg-acoes .btn{flex:1 1 auto}
+
+/* alinhamento dos botões dos formulários */
+.adm-novo>.btn{min-height:52px;align-self:end}
+.adm-fim{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line)}
+.adm-fim .check{align-self:center}
+.adm-fim .btn{min-height:52px;min-width:240px}
+@media (max-width:800px){.adm-fim{flex-direction:column;align-items:stretch}.adm-fim .btn{min-width:0;width:100%}}
+.adm-novo .campo{margin-bottom:0}

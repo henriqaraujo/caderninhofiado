@@ -100,8 +100,10 @@ cf_topo('Administração');
       <div class="campo"><label for="n-senha">Senha</label><div class="senha-wrap"><input type="text" id="n-senha" name="senha" required minlength="6" autocomplete="off" spellcheck="false"><button type="button" class="ver-senha" data-gerar="n-senha" aria-label="Gerar uma senha"><i class="ph ph-magic-wand"></i></button></div><small class="ajuda">Toque na varinha para gerar uma senha fácil de ler.</small></div>
       <div class="campo"><label for="n-com">Comércio</label><select id="n-com" name="comercio"><option value="novo">Novo comércio (com o nome da pessoa)</option><?php foreach ($comercios as $c): ?><option value="<?= cf_h($c['id']) ?>">Adicionar a: <?= cf_h($c['nome']) ?></option><?php endforeach; ?></select><small class="ajuda">Para dar acesso a mais alguém do mesmo comércio, escolha o comércio dele.</small></div>
       <div class="campo"><label for="n-dias">Dias de teste</label><input type="number" id="n-dias" name="dias" min="0" max="3650" value="7" inputmode="numeric"><small class="ajuda">Depois desses dias o acesso é bloqueado até você liberar. Deixe 0 para não ter limite. Só vale para comércio novo.</small></div>
-      <label class="check"><input type="checkbox" name="admin"><span><b>Também é administrador</b><small>Pode criar usuários e trocar senhas.</small></span></label>
-      <button class="btn btn-primary" type="submit"><i class="ph ph-user-plus"></i>Criar usuário</button>
+      <div class="adm-fim">
+        <label class="check"><input type="checkbox" name="admin"><span><b>Também é administrador</b><small>Pode criar usuários e trocar senhas.</small></span></label>
+        <button class="btn btn-primary" type="submit"><i class="ph ph-user-plus"></i>Criar usuário</button>
+      </div>
     </form>
   </section>
 
