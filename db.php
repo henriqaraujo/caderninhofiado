@@ -3,7 +3,7 @@
    Os dados de acesso ao banco ficam em _dados_caderninho/banco.php (fora do GitHub). */
 if (!defined('CF')) { http_response_code(403); exit; }
 
-define('CF_MAX_EQUIPE', 5);   // usuários por comércio (dono + equipe)
+define('CF_MAX_EQUIPE', 2);   // usuários por comércio (dono + equipe)
 
 /* ---- conexão ---- */
 function cf_db_config() { $c = cf_ler('banco', array()); return !empty($c['host']) && !empty($c['banco']) ? $c : null; }
