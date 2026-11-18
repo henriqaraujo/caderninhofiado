@@ -4,6 +4,7 @@
    para o envio automático do site nunca apagar nem sobrescrever. */
 if (!defined('CF')) { http_response_code(403); exit; }
 
+@date_default_timezone_set('America/Sao_Paulo');
 define('CF_COOKIE', 'cf_acesso');
 define('CF_DIAS', 30);            // quantos dias o usuário continua logado
 define('CF_MAX_ERROS', 5);        // erros de senha antes de bloquear
@@ -64,6 +65,18 @@ function cf_sair() {
     setcookie(CF_COOKIE, '', array('expires' => 1, 'path' => '/', 'secure' => cf_https(), 'httponly' => true, 'samesite' => 'Lax'));
     unset($_COOKIE[CF_COOKIE]);
 }
+/* Período de teste: o campo 'ate' (AAAA-MM-DD) é o último dia de acesso. Sem 'ate' = acesso liberado.
+   Administradores nunca expiram. */
+function cf_ate($dias) { return date('Y-m-d', strtotime('+' . (int)$dias . ' days')); }
+function cf_expirado($u) {
+    if (!empty($u['admin']) || empty($u['ate'])) return false;
+    return date('Y-m-d') > $u['ate'];
+}
+function cf_dias_restantes($u) {
+    if (empty($u['ate'])) return null;
+    return (int) floor((strtotime($u['ate']) - strtotime(date('Y-m-d'))) / 86400);
+}
+function cf_data_br($d) { return $d ? date('d/m/Y', strtotime($d)) : ''; }
 function cf_atual() {
     static $cache = false;
     if ($cache !== false) return $cache;
@@ -77,10 +90,18 @@ function cf_atual() {
     $u = cf_achar(cf_usuarios(), 'id', $id);
     if (!$u || empty($u['ativo'])) return null;
     if (substr(md5($u['hash']), 0, 12) !== $marca) return null;   // trocou a senha: sai de todos os aparelhos
+    if (cf_expirado($u)) { $GLOBALS['cf_expirou'] = $u; return null; }
     return $cache = $u;
 }
 function cf_exigir_login() {
-    if (!cf_atual()) cf_ir('login.php');
+    if (!cf_atual()) {
+        if (!empty($GLOBALS['cf_expirou'])) {
+            http_response_code(403); cf_topo('Período de teste encerrado');
+            echo '<main class="aut"><section class="card aut-card">' . cf_marca() . '<h1>Seu período de teste terminou</h1><p class="aut-sub">Para continuar usando o Caderninho do Fiado, fale com o administrador para liberar o seu acesso. Seus dados continuam salvos neste aparelho.</p><a class="btn btn-primary" href="sair.php"><i class="ph ph-sign-out"></i>Sair</a></section></main>';
+            cf_rodape(); exit;
+        }
+        cf_ir('login.php');
+    }
     return cf_atual();
 }
 function cf_exigir_admin() {

@@ -20,7 +20,13 @@
       document.getElementById('dlg-senha-nome').textContent = 'Para: ' + b.getAttribute('data-nome');
       var d = document.getElementById('dlg-senha'); document.getElementById('dlg-nova').value = ''; d.showModal(); document.getElementById('dlg-nova').focus(); return;
     }
-    if (e.target.closest('[data-fechar]')) { document.getElementById('dlg-senha').close(); }
+    b = e.target.closest('[data-periodo]');
+    if (b) {
+      document.getElementById('dlg-periodo-id').value = b.getAttribute('data-periodo');
+      document.getElementById('dlg-periodo-nome').textContent = 'Para: ' + b.getAttribute('data-nome');
+      document.getElementById('dlg-periodo').showModal(); document.getElementById('dlg-dias').focus(); return;
+    }
+    if (e.target.closest('[data-fechar]')) { var dd = e.target.closest('dialog'); if (dd) dd.close(); }
   });
   document.addEventListener('submit', function (e) {
     var m = e.target.getAttribute && e.target.getAttribute('data-confirma');

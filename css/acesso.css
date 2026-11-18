@@ -79,3 +79,6 @@ body.pag-acesso{min-height:100dvh;background:var(--bg)}
 
 .tema-fixo{position:fixed;top:14px;right:14px;z-index:50;width:44px;height:44px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:20px;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .tema-fixo:hover{background:var(--surface-2)}
+
+.adm input[type=number],.adm-dlg input[type=number]{width:100%;min-height:52px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:17px}
+.adm-dlg-acoes .btn{flex:1 1 auto}

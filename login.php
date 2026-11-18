@@ -23,9 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($min) $erro = 'Muitas tentativas. Tente de novo em ' . $min . ' minuto' . ($min > 1 ? 's' : '') . '.';
         else {
             $u = cf_achar($usuarios, 'usuario', strtolower($login));
-            $ok = $u && !empty($u['ativo']) && password_verify($senha, $u['hash']);
+            $ok = $u && !empty($u["ativo"]) && !cf_expirado($u) && password_verify($senha, $u["hash"]);
             if (!$u) password_verify($senha, '$2y$10$abcdefghijklmnopqrstuuF4mZcQJ0m5yQ0h3o2YcJw1y8s6u5eXe');  // gasta o mesmo tempo
             if ($ok) { cf_limpar_falhas($login); if (password_needs_rehash($u['hash'], PASSWORD_DEFAULT)) { /* mantém */ } cf_entrar($u); cf_ir(''); }
+            elseif ($u && cf_expirado($u) && password_verify($senha, $u['hash'])) { cf_limpar_falhas($login); $erro = 'Seu período de teste terminou em ' . cf_data_br($u['ate']) . '. Fale com o administrador para liberar o acesso.'; }
             else { cf_falha($login); $erro = ($u && empty($u['ativo'])) ? 'Este acesso está desativado. Fale com o administrador.' : 'Usuário ou senha incorretos.'; }
         }
     }
